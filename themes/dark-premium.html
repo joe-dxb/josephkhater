@@ -159,6 +159,16 @@
   .langs{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
   .lang{border:1px solid var(--line);border-radius:2px;padding:7px 14px;font-family:"Inter",sans-serif;font-weight:500;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--cream)}
 
+  /* ---------- insights ---------- */
+  .insights-lede{max-width:640px;color:var(--text);font-size:1.05rem;line-height:1.6;margin-bottom:46px}
+  .insight-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line)}
+  .insight{background:var(--bg-alt);padding:32px 28px 34px;transition:background .25s}
+  .insight:hover{background:var(--panel)}
+  .insight .ii{color:var(--gold);margin-bottom:18px}
+  .insight h3{font-family:"Fraunces",serif;font-weight:500;font-size:1.22rem;letter-spacing:-.005em;margin-bottom:12px;color:var(--cream)}
+  .insight p{color:var(--muted);font-size:.95rem;line-height:1.6}
+  .insight .isoon{margin-top:20px;padding-top:16px;border-top:1px solid var(--line);color:var(--gold);font-family:"Inter",sans-serif;font-weight:600;font-size:.66rem;letter-spacing:.18em;text-transform:uppercase}
+
   /* ---------- contact ---------- */
   .contact{padding:120px 0;border-top:1px solid var(--line-soft);position:relative;overflow:hidden}
   .contact .glow{position:absolute;bottom:-220px;left:50%;transform:translateX(-50%);width:1000px;height:560px;pointer-events:none;background:radial-gradient(ellipse at center,rgba(199,166,103,.12),transparent 62%)}
@@ -190,6 +200,7 @@
   @media(max-width:860px){
     .about-grid,.bg-grid{grid-template-columns:1fr;gap:40px}
     .cap-grid{grid-template-columns:1fr 1fr}
+    .insight-grid{grid-template-columns:1fr}
     .work-grid{grid-template-columns:1fr}
     .cred{border-left:none;border-top:1px solid var(--line);padding-left:0;padding-top:38px}
     .stats{grid-template-columns:1fr 1fr;gap:28px}
@@ -202,6 +213,7 @@
     .sec-head{flex-wrap:wrap;gap:12px}
     .sec-head .rule{display:none}
     .cap-grid{grid-template-columns:1fr}
+    .insight-grid{grid-template-columns:1fr}
     .fact{grid-template-columns:112px 1fr}
     .role{grid-template-columns:84px 1fr;gap:16px}
     .contact{padding:84px 0}
@@ -225,6 +237,7 @@
       <a class="label" href="#expertise">Expertise</a>
       <a class="label" href="#work">Selected work</a>
       <a class="label" href="#background">Background</a>
+      <a class="label" href="#insights">Insights</a>
       <a class="nav-cta" href="#contact">Get in touch</a>
     </nav>
   </div>
@@ -416,11 +429,43 @@
     </div>
   </section>
 
+  <!-- INSIGHTS -->
+  <section class="block alt" id="insights">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="idx label">05</span>
+        <h2>Insights</h2>
+        <span class="rule"></span>
+      </div>
+      <p class="insights-lede reveal">Perspectives on strategy, government transformation, and AI — long-form writing is on the way.</p>
+      <div class="insight-grid">
+        <article class="insight reveal">
+          <div class="ii label">Strategy</div>
+          <h3>Operating models that hold up under delivery</h3>
+          <p>Notes on designing mandates, structures, and governance that survive contact with the org chart.</p>
+          <div class="isoon">Coming soon</div>
+        </article>
+        <article class="insight reveal">
+          <div class="ii label">Government</div>
+          <h3>Standing up a new government entity</h3>
+          <p>Lessons from mandate to launch — what actually determines whether a new entity works on day one.</p>
+          <div class="isoon">Coming soon</div>
+        </article>
+        <article class="insight reveal">
+          <div class="ii label">AI & Digital</div>
+          <h3>From AI pilot to governed capability</h3>
+          <p>How transformation programs move past proofs of concept — and how to prove the value that follows.</p>
+          <div class="isoon">Coming soon</div>
+        </article>
+      </div>
+    </div>
+  </section>
+
   <!-- CONTACT -->
   <section class="contact" id="contact">
     <div class="glow" aria-hidden="true"></div>
     <div class="wrap">
-      <div class="eyebrow label reveal">05 — Let's talk</div>
+      <div class="eyebrow label reveal">06 — Let's talk</div>
       <h2 class="reveal">Building something that needs <em>a strategist?</em></h2>
       <p class="reveal">
         Open to senior strategy and transformation leadership across the GCC. The fastest way to reach me
