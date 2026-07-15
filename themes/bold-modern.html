@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Joseph Khater — Strategy & Transformation Leader</title>
+<meta name="description" content="Joseph Khater — strategy and digital transformation leader across the GCC. Government entity design, digital & AI transformation, and value realization." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --ink:#14161E;
+    --ink-soft:#23262F;
+    --paper:#EFF0F2;
+    --paper-warm:#F6F6F4;
+    --line:#D6D8DE;
+    --line-dark:#33363F;
+    --accent:#2240FF;
+    --accent-bright:#5B72FF;
+    --muted:#565B68;
+    --muted-dark:#9DA1AD;
+    --maxw:1180px;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Inter",system-ui,sans-serif;
+    font-size:17px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;text-decoration:none}
+  ::selection{background:var(--accent);color:#fff}
+
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px}
+
+  .mono{
+    font-family:"JetBrains Mono",monospace;
+    font-size:.72rem;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+  }
+
+  /* ---------- header ---------- */
+  header{
+    position:sticky;top:0;z-index:50;
+    background:rgba(239,240,242,.82);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav{display:flex;align-items:center;justify-content:space-between;height:62px}
+  .brand{display:flex;align-items:center;gap:.55rem;font-family:"Space Grotesk",sans-serif;font-weight:700;letter-spacing:-.01em}
+  .brand .dot{width:9px;height:9px;border-radius:50%;background:var(--accent)}
+  .nav-links{display:flex;gap:30px;align-items:center}
+  .nav-links a.mono{color:var(--muted);transition:color .2s}
+  .nav-links a.mono:hover{color:var(--ink)}
+  .nav-cta{
+    font-family:"JetBrains Mono",monospace;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;
+    border:1px solid var(--ink);border-radius:2px;padding:9px 15px;transition:.2s;
+  }
+  .nav-cta:hover{background:var(--ink);color:var(--paper)}
+  .nav-toggle{display:none}
+
+  /* ---------- hero ---------- */
+  .hero{position:relative;padding:84px 0 70px;overflow:hidden}
+  .hero .blueprint{position:absolute;inset:0;pointer-events:none;
+    background-image:linear-gradient(var(--line) 1px,transparent 1px);
+    background-size:100% 64px;opacity:.5;
+    mask-image:linear-gradient(180deg,transparent,#000 18%,#000 70%,transparent);
+    -webkit-mask-image:linear-gradient(180deg,transparent,#000 18%,#000 70%,transparent);
+  }
+  .hero .wrap{position:relative}
+  .eyebrow{color:var(--accent);margin-bottom:26px;display:flex;align-items:center;gap:14px}
+  .eyebrow::before{content:"";width:42px;height:1px;background:var(--accent);display:inline-block}
+  h1{
+    font-family:"Space Grotesk",sans-serif;font-weight:700;
+    font-size:clamp(3rem,9vw,7rem);line-height:.96;letter-spacing:-.035em;
+  }
+  h1 .ln{display:block;overflow:hidden}
+  .hero-sub{
+    margin-top:32px;max-width:640px;font-size:clamp(1.1rem,2.2vw,1.45rem);
+    line-height:1.45;color:var(--ink-soft);font-weight:400;
+  }
+  .hero-actions{margin-top:40px;display:flex;gap:14px;flex-wrap:wrap}
+  .btn{
+    font-family:"JetBrains Mono",monospace;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;
+    padding:15px 26px;border-radius:2px;transition:.2s;display:inline-flex;align-items:center;gap:10px;
+  }
+  .btn-primary{background:var(--accent);color:#fff}
+  .btn-primary:hover{background:#1730d6}
+  .btn-ghost{border:1px solid var(--ink);color:var(--ink)}
+  .btn-ghost:hover{background:var(--ink);color:var(--paper)}
+
+  .stats{
+    margin-top:64px;border-top:1px solid var(--line);padding-top:22px;
+    display:grid;grid-template-columns:repeat(4,1fr);gap:24px;
+  }
+  .stat .k{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:1.5rem;letter-spacing:-.02em}
+  .stat .l{color:var(--muted);margin-top:4px}
+
+  /* ---------- section scaffolding ---------- */
+  section.block{padding:96px 0;border-top:1px solid var(--line)}
+  .sec-head{display:flex;align-items:baseline;gap:18px;margin-bottom:54px}
+  .sec-head .idx{color:var(--accent);white-space:nowrap}
+  .sec-head h2{
+    font-family:"Space Grotesk",sans-serif;font-weight:500;font-size:clamp(1.6rem,3.4vw,2.5rem);
+    letter-spacing:-.02em;line-height:1.05;
+  }
+  .sec-head .rule{flex:1;height:1px;background:var(--line);align-self:center}
+
+  /* ---------- about ---------- */
+  .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start}
+  .about-lead{font-size:1.35rem;line-height:1.5;font-weight:500;letter-spacing:-.01em}
+  .about-grid p+p{margin-top:18px}
+  .about-grid .body p{color:var(--muted);margin-top:0}
+  .about-grid .body p+p{margin-top:18px}
+  .facts{margin-top:30px;border-top:1px solid var(--line);padding-top:22px;display:grid;gap:14px}
+  .fact{display:grid;grid-template-columns:130px 1fr;gap:14px;align-items:baseline}
+  .fact .ft{color:var(--accent)}
+  .fact .fv{color:var(--ink)}
+
+  /* ---------- expertise ---------- */
+  .cap-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line)}
+  .cap{background:var(--paper);padding:30px 26px 34px;transition:background .2s}
+  .cap:hover{background:var(--paper-warm)}
+  .cap .ci{color:var(--accent);margin-bottom:18px}
+  .cap h3{font-family:"Space Grotesk",sans-serif;font-weight:500;font-size:1.22rem;letter-spacing:-.01em;margin-bottom:10px}
+  .cap p{color:var(--muted);font-size:.95rem;line-height:1.55}
+
+  /* ---------- work ---------- */
+  .work-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line-dark)}
+  .work{background:var(--ink);color:var(--paper);padding:34px 32px 38px;position:relative;min-height:230px;display:flex;flex-direction:column}
+  .work .wtop{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:auto}
+  .work .wi{color:var(--accent-bright)}
+  .work .wsec{color:var(--muted-dark)}
+  .work h3{font-family:"Space Grotesk",sans-serif;font-weight:500;font-size:1.4rem;letter-spacing:-.01em;margin:30px 0 12px;line-height:1.15}
+  .work .wscope{color:var(--muted-dark);font-size:.95rem;line-height:1.55}
+  .work .wout{margin-top:16px;padding-top:16px;border-top:1px solid var(--line-dark);font-size:.9rem}
+  .work .wout span{color:var(--accent-bright);font-family:"JetBrains Mono",monospace;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;display:block;margin-bottom:5px}
+  .work-note{margin-top:22px;color:var(--muted);font-size:.85rem}
+
+  /* ---------- background ---------- */
+  .bg-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px}
+  .roles{display:grid;gap:0}
+  .role{display:grid;grid-template-columns:96px 1fr;gap:20px;padding:22px 0;border-top:1px solid var(--line)}
+  .role:first-child{border-top:none;padding-top:0}
+  .role .ryr{color:var(--accent)}
+  .role h4{font-family:"Space Grotesk",sans-serif;font-weight:500;font-size:1.12rem;letter-spacing:-.01em}
+  .role .rorg{color:var(--muted);font-size:.92rem;margin-top:3px}
+  .cred{border-left:1px solid var(--line);padding-left:32px}
+  .cred-item{margin-bottom:30px}
+  .cred-item:last-child{margin-bottom:0}
+  .cred-item .clab{color:var(--accent);margin-bottom:10px}
+  .cred-item h4{font-family:"Space Grotesk",sans-serif;font-weight:500;font-size:1.15rem;letter-spacing:-.01em}
+  .cred-item p{color:var(--muted);font-size:.95rem;margin-top:4px}
+  .langs{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+  .lang{border:1px solid var(--line);border-radius:2px;padding:7px 13px;font-family:"JetBrains Mono",monospace;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink)}
+
+  /* ---------- contact ---------- */
+  .contact{background:var(--ink);color:var(--paper);padding:110px 0}
+  .contact .eyebrow{color:var(--accent-bright)}
+  .contact .eyebrow::before{background:var(--accent-bright)}
+  .contact h2{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:clamp(2.2rem,6vw,4.2rem);letter-spacing:-.03em;line-height:1;margin:24px 0 30px}
+  .contact p{color:var(--muted-dark);max-width:520px;font-size:1.15rem}
+  .contact-actions{margin-top:42px;display:flex;gap:14px;flex-wrap:wrap}
+  .contact .btn-primary{background:var(--accent-bright)}
+  .contact .btn-primary:hover{background:var(--accent)}
+  .contact .btn-ghost{border-color:var(--line-dark);color:var(--paper)}
+  .contact .btn-ghost:hover{background:var(--paper);color:var(--ink);border-color:var(--paper)}
+  .contact-meta{margin-top:64px;border-top:1px solid var(--line-dark);padding-top:24px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px}
+  .contact-meta .mono{color:var(--muted-dark)}
+
+  footer{background:var(--ink);color:var(--muted-dark);padding:30px 0 46px}
+  footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+
+  /* ---------- reveal ---------- */
+  .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease}
+  .reveal.in{opacity:1;transform:none}
+  .hero .eyebrow,.hero h1 .ln span,.hero-sub,.hero-actions,.stats{
+    opacity:0;transform:translateY(18px);animation:rise .8s forwards
+  }
+  .hero .eyebrow{animation-delay:.05s}
+  .hero h1 .ln:nth-child(1) span{animation:rise .9s .15s forwards}
+  .hero h1 .ln:nth-child(2) span{animation:rise .9s .27s forwards}
+  .hero-sub{animation-delay:.45s}
+  .hero-actions{animation-delay:.58s}
+  .stats{animation-delay:.7s}
+  h1 .ln span{display:block}
+  @keyframes rise{to{opacity:1;transform:none}}
+
+  /* ---------- responsive ---------- */
+  @media(max-width:860px){
+    .about-grid,.bg-grid{grid-template-columns:1fr;gap:36px}
+    .cap-grid{grid-template-columns:1fr 1fr}
+    .work-grid{grid-template-columns:1fr}
+    .cred{border-left:none;border-top:1px solid var(--line);padding-left:0;padding-top:36px}
+    .stats{grid-template-columns:1fr 1fr;gap:26px}
+  }
+  @media(max-width:620px){
+    body{font-size:16px}
+    .wrap{padding:0 20px}
+    .nav-links a.mono{display:none}
+    section.block{padding:70px 0}
+    .sec-head{flex-wrap:wrap;gap:10px}
+    .sec-head .rule{display:none}
+    .cap-grid{grid-template-columns:1fr}
+    .fact{grid-template-columns:110px 1fr}
+    .role{grid-template-columns:80px 1fr;gap:14px}
+    .contact{padding:80px 0}
+  }
+  @media(prefers-reduced-motion:reduce){
+    *{animation:none!important}
+    .reveal{opacity:1;transform:none;transition:none}
+    html{scroll-behavior:auto}
+  }
+  :focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="#top"><span class="dot"></span>Joseph Khater</a>
+    <nav class="nav-links" aria-label="Primary">
+      <a class="mono" href="#about">Profile</a>
+      <a class="mono" href="#expertise">Expertise</a>
+      <a class="mono" href="#work">Selected work</a>
+      <a class="mono" href="#background">Background</a>
+      <a class="nav-cta" href="#contact">Get in touch</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="blueprint" aria-hidden="true"></div>
+    <div class="wrap">
+      <div class="eyebrow mono">Strategy · Digital · AI — GCC</div>
+      <h1>
+        <span class="ln"><span>Joseph</span></span>
+        <span class="ln"><span>Khater</span></span>
+      </h1>
+      <p class="hero-sub">
+        A strategy and transformation leader who turns ambition into operating reality —
+        government entity design, digital and AI transformation, and value that shows up in the numbers.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#contact">Get in touch</a>
+        <a class="btn btn-ghost" href="#work">See selected work</a>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><div class="k">16+</div><div class="l mono">Years</div></div>
+        <div class="stat"><div class="k">GCC</div><div class="l mono">UAE · KSA · Qatar</div></div>
+        <div class="stat"><div class="k">AR·EN·FR</div><div class="l mono">Trilingual</div></div>
+        <div class="stat"><div class="k">Public&nbsp;Sector</div><div class="l mono">Gov · Health · FS</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section class="block" id="about">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="idx mono">§01</span>
+        <h2>Profile</h2>
+        <span class="rule"></span>
+      </div>
+      <div class="about-grid">
+        <div>
+          <p class="about-lead reveal">
+            I work at the point where strategy meets delivery — helping governments and large
+            organizations design what they want to become, then build the operating model that gets them there.
+          </p>
+          <div class="facts reveal">
+            <div class="fact"><span class="ft mono">Focus</span><span class="fv">Strategy · Operating models · AI</span></div>
+            <div class="fact"><span class="ft mono">Sectors</span><span class="fv">Government, Health, Financial Services</span></div>
+            <div class="fact"><span class="ft mono">Region</span><span class="fv">United Arab Emirates · GCC</span></div>
+            <div class="fact"><span class="ft mono">Based</span><span class="fv">Dubai, UAE</span></div>
+          </div>
+        </div>
+        <div class="body reveal">
+          <p>
+            Over more than sixteen years across strategy consulting and public-sector advisory, I have led
+            national digital platforms, stood up new government entities end to end, and embedded AI and
+            value-realization frameworks that tie transformation back to measurable outcomes.
+          </p>
+          <p>
+            My approach is structured and methodology-led, but the test is always operational: a clear mandate,
+            an org and operating model that works on the ground, and KPIs that prove value was realized — not just promised.
+          </p>
+          <p>
+            I am currently focused on senior strategy and transformation leadership, partnering with executive
+            teams shaping technology- and AI-led change across the region.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPERTISE -->
+  <section class="block" id="expertise">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="idx mono">§02</span>
+        <h2>Areas of expertise</h2>
+        <span class="rule"></span>
+      </div>
+      <div class="cap-grid">
+        <div class="cap reveal"><div class="ci mono">C—01</div><h3>Corporate &amp; functional strategy</h3><p>Strategy formulation, target-state design, and the roadmaps that connect long-term ambition to near-term action.</p></div>
+        <div class="cap reveal"><div class="ci mono">C—02</div><h3>Operating model &amp; org design</h3><p>Mandates, structures, governance, and operating models — designed to function, not just to look good on a slide.</p></div>
+        <div class="cap reveal"><div class="ci mono">C—03</div><h3>Government entity establishment</h3><p>End-to-end stand-up of new public-sector entities: from mandate and capabilities to launch and operations.</p></div>
+        <div class="cap reveal"><div class="ci mono">C—04</div><h3>Digital &amp; AI transformation</h3><p>Digital platforms and AI strategy that move from pilots to scaled, governed, value-generating capability.</p></div>
+        <div class="cap reveal"><div class="ci mono">C—05</div><h3>Value realization &amp; KPIs</h3><p>Frameworks that link initiatives to benefits and measurable KPIs, so value is tracked and defended over time.</p></div>
+        <div class="cap reveal"><div class="ci mono">C—06</div><h3>Program &amp; portfolio leadership</h3><p>PMO and GPMO leadership across complex, multi-entity programs — governance, delivery, and stakeholder alignment.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WORK -->
+  <section class="block" id="work">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="idx mono">§03</span>
+        <h2>Selected work</h2>
+        <span class="rule"></span>
+      </div>
+      <div class="work-grid">
+        <article class="work reveal">
+          <div class="wtop"><span class="wi mono">E—01</span><span class="wsec mono">National Gov · UAE</span></div>
+          <h3>National digital government platform</h3>
+          <p class="wscope">Strategy and delivery support for a unified national platform consolidating citizen services across federal entities.</p>
+          <div class="wout"><span>Outcome</span>A single national access point and a streamlined cross-entity service model.</div>
+        </article>
+        <article class="work reveal">
+          <div class="wtop"><span class="wi mono">E—02</span><span class="wsec mono">Public Sector · UAE</span></div>
+          <h3>Government entity establishment programs</h3>
+          <p class="wscope">End-to-end design and stand-up of multiple new government entities — mandate, capabilities, operating model, and governance.</p>
+          <div class="wout"><span>Outcome</span>Operational entities with defined mandates and target operating models.</div>
+        </article>
+        <article class="work reveal">
+          <div class="wtop"><span class="wi mono">E—03</span><span class="wsec mono">Social · UAE</span></div>
+          <h3>Social services case-management reform</h3>
+          <p class="wscope">Case-management reform across a multi-entity ecosystem of 30+ government bodies, with harmonized processes and a shared service model.</p>
+          <div class="wout"><span>Outcome</span>A unified case-management approach across a complex ecosystem.</div>
+        </article>
+        <article class="work reveal">
+          <div class="wtop"><span class="wi mono">E—04</span><span class="wsec mono">AI · Education</span></div>
+          <h3>AI higher-education program strategy</h3>
+          <p class="wscope">Program strategy for an undergraduate AI offering at a specialized AI university — positioning, curriculum direction, and go-to-market.</p>
+          <div class="wout"><span>Outcome</span>A defined program proposition and launch direction.</div>
+        </article>
+        <article class="work reveal">
+          <div class="wtop"><span class="wi mono">E—05</span><span class="wsec mono">Smart Cities · KSA</span></div>
+          <h3>Giga-project digital-twin strategy</h3>
+          <p class="wscope">Digital-twin operating concept and roadmap for a large-scale, next-generation urban development.</p>
+          <div class="wout"><span>Outcome</span>A digital-twin operating model and phased roadmap.</div>
+        </article>
+        <article class="work reveal">
+          <div class="wtop"><span class="wi mono">E—06</span><span class="wsec mono">Technology · GCC</span></div>
+          <h3>AI &amp; value-realization framework</h3>
+          <p class="wscope">A reusable framework connecting AI and digital initiatives to benefits and KPIs across engagements.</p>
+          <div class="wout"><span>Outcome</span>A repeatable value-realization model adopted across programs.</div>
+        </article>
+      </div>
+      <p class="work-note mono">Engagements described generically to respect client and employer confidentiality.</p>
+    </div>
+  </section>
+
+  <!-- BACKGROUND -->
+  <section class="block" id="background">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="idx mono">§04</span>
+        <h2>Background</h2>
+        <span class="rule"></span>
+      </div>
+      <div class="bg-grid">
+        <div class="roles reveal">
+          <div class="role">
+            <span class="ryr mono">Now</span>
+            <div><h4>Founder &amp; Principal</h4><div class="rorg">JK Consulting · Independent strategy advisory</div></div>
+          </div>
+          <div class="role">
+            <span class="ryr mono">Recent</span>
+            <div><h4>Senior Manager — Strategy &amp; Consulting</h4><div class="rorg">Accenture · Health &amp; Public Sector, MENA</div></div>
+          </div>
+          <div class="role">
+            <span class="ryr mono">Prior</span>
+            <div><h4>Strategy &amp; Transformation</h4><div class="rorg">EY · Advisory</div></div>
+          </div>
+          <div class="role">
+            <span class="ryr mono">Prior</span>
+            <div><h4>Government Transformation</h4><div class="rorg">UAE Prime Minister's Office</div></div>
+          </div>
+        </div>
+        <div class="cred reveal">
+          <div class="cred-item">
+            <div class="clab mono">Education</div>
+            <h4>MBA</h4>
+            <p>Alliance Manchester Business School, University of Manchester</p>
+          </div>
+          <div class="cred-item">
+            <div class="clab mono">Languages</div>
+            <h4>Trilingual</h4>
+            <div class="langs">
+              <span class="lang">Arabic</span>
+              <span class="lang">English</span>
+              <span class="lang">French</span>
+            </div>
+          </div>
+          <div class="cred-item">
+            <div class="clab mono">Orientation</div>
+            <h4>Methodology-led</h4>
+            <p>Structured frameworks, operating-model design, and KPI-based value realization.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="contact" id="contact">
+    <div class="wrap">
+      <div class="eyebrow mono reveal">§05 — Let's talk</div>
+      <h2 class="reveal">Building something<br>that needs a strategist?</h2>
+      <p class="reveal">
+        Open to senior strategy and transformation leadership across the GCC. The fastest way to reach me
+        is to book a short call, or connect on LinkedIn.
+      </p>
+      <div class="contact-actions reveal">
+        <a class="btn btn-primary" href="https://calendly.com/jkhater/25min" target="_blank" rel="noopener">Book a conversation</a>
+        <a class="btn btn-ghost" href="https://www.linkedin.com/in/josephkhater/" target="_blank" rel="noopener">LinkedIn</a>
+      </div>
+      <div class="contact-meta">
+        <span class="mono">25-min intro call · calendly.com/jkhater</span>
+        <span class="mono">Dubai, United Arab Emirates</span>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span class="mono">© 2026 Joseph Khater</span>
+    <span class="mono">Strategy · Digital · AI — GCC</span>
+  </div>
+</footer>
+
+<script>
+  (function(){
+    var els = document.querySelectorAll('.reveal');
+    if(!('IntersectionObserver' in window)){els.forEach(function(e){e.classList.add('in')});return;}
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target);}
+      });
+    },{threshold:.12,rootMargin:'0px 0px -8% 0px'});
+    els.forEach(function(e){io.observe(e);});
+  })();
+</script>
+</body>
+</html>
