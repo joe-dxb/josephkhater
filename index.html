@@ -212,6 +212,10 @@
   .nb-btn{background:none;border:1px solid var(--line);color:var(--gold);cursor:pointer;border-radius:2px;padding:6px 12px;white-space:nowrap;transition:.2s}
   .nb-btn:hover{border-color:var(--gold)}
   .nb-panel{border-top:1px solid var(--line-soft);padding:22px 0 26px;max-height:68vh;overflow-y:auto}
+  .nb-tabs{display:flex;gap:10px;margin-bottom:16px}
+  .nb-tabbtn{background:none;border:1px solid var(--line);color:var(--muted);cursor:pointer;border-radius:2px;padding:8px 16px;font-family:"Inter",sans-serif;font-weight:600;font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;transition:.2s}
+  .nb-tabbtn:hover{border-color:var(--gold);color:var(--cream)}
+  .nb-tabbtn.on{background:var(--gold);color:#0C0B0E;border-color:var(--gold)}
   .nb-filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
   .nb-flab{color:var(--muted);margin-right:4px}
   .nb-fbtn{background:none;border:1px solid var(--line);color:var(--text);cursor:pointer;border-radius:20px;padding:5px 13px;font-family:"Inter",sans-serif;font-size:.72rem;letter-spacing:.06em;transition:.2s}
@@ -287,6 +291,10 @@
   </div>
   <div class="nb-panel" id="nb-panel" hidden>
     <div class="wrap">
+      <div class="nb-tabs" id="nb-tabs" hidden>
+        <button class="nb-tabbtn on" id="nb-tab-news" type="button">Latest news</button>
+        <button class="nb-tabbtn" id="nb-tab-events" type="button">Upcoming events</button>
+      </div>
       <div class="nb-filters" id="nb-fc"><span class="nb-flab label">Country</span></div>
       <div class="nb-filters" id="nb-fk"><span class="nb-flab label">Category</span></div>
       <div class="nb-list" id="nb-list"></div>
@@ -586,7 +594,7 @@
   (function(){
     var COUNTRIES = ['All','UAE','KSA','Qatar','Oman','Bahrain','Kuwait'];
     var CATS = ['All','Banking','AI','Cyber','Regulation','Government','Cloud','Fintech','Events','Payments','Digital ID'];
-    var state = { country:'UAE', cat:'All', items:[], rot:[], idx:0, timer:null };
+    var state = { country:'UAE', cat:'All', view:'news', items:[], events:[], rot:[], idx:0, timer:null };
     var $ = function(id){ return document.getElementById(id); };
 
     fetch('data/news.json', {cache:'no-cache'})
@@ -594,11 +602,30 @@
       .then(init)
       .catch(function(){ /* no data — bar stays hidden */ });
 
+    fetch('data/events.json', {cache:'no-cache'})
+      .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function(data){
+        var today = new Date().toISOString().slice(0,10);
+        state.events = (data.events || []).filter(function(e){ return e.d2 >= today; });
+        if(state.events.length) $('nb-tabs').hidden = false;
+      })
+      .catch(function(){ /* no events — tab stays hidden */ });
+
     function ago(iso){
       var s = (Date.now() - new Date(iso).getTime()) / 1000;
       if(s < 3600) return Math.max(1, Math.round(s/60)) + 'm ago';
       if(s < 86400) return Math.round(s/3600) + 'h ago';
       return Math.round(s/86400) + 'd ago';
+    }
+
+    function dateRange(d1, d2){
+      var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      var a = d1.split('-'), b = d2.split('-');
+      var s = parseInt(a[2],10) + ' ' + MON[a[1]-1], e = parseInt(b[2],10) + ' ' + MON[b[1]-1] + ' ' + b[0];
+      if(d1 === d2) return s + ' ' + a[0];
+      if(a[0] === b[0] && a[1] === b[1]) return parseInt(a[2],10) + '–' + parseInt(b[2],10) + ' ' + MON[a[1]-1] + ' ' + a[0];
+      if(a[0] === b[0]) return s + ' – ' + e;
+      return s + ' ' + a[0] + ' – ' + e;
     }
 
     function filtered(){
@@ -634,6 +661,8 @@
     }
 
     function renderList(){
+      if(state.view === 'events'){ renderEvents(); return; }
+      $('nb-fk').style.display = '';
       var list = $('nb-list'), items = filtered();
       list.textContent = '';
       if(!items.length){
@@ -658,6 +687,40 @@
         }
         var m = document.createElement('div'); m.className = 'nb-meta';
         m.textContent = it.s + ' · ' + ago(it.p);
+        art.appendChild(m);
+        list.appendChild(art);
+      });
+    }
+
+    function renderEvents(){
+      $('nb-fk').style.display = 'none';
+      var list = $('nb-list');
+      list.textContent = '';
+      var evts = state.events.filter(function(e){
+        return state.country === 'All' || e.c === state.country;
+      });
+      if(!evts.length){
+        var d = document.createElement('div');
+        d.className = 'nb-empty';
+        d.textContent = 'No upcoming events for this filter.';
+        list.appendChild(d);
+        return;
+      }
+      evts.forEach(function(e){
+        var art = document.createElement('article'); art.className = 'nb-item';
+        var tags = document.createElement('div'); tags.className = 'nb-item-tags';
+        tags.appendChild(chip(dateRange(e.d1, e.d2), 'nb-cat label'));
+        tags.appendChild(chip(e.k, 'nb-chip-c label'));
+        tags.appendChild(chip(e.c, 'nb-chip-c label'));
+        art.appendChild(tags);
+        if(/^https:\/\//.test(e.u)){
+          var a = document.createElement('a');
+          a.href = e.u; a.target = '_blank'; a.rel = 'noopener';
+          a.textContent = e.n;
+          art.appendChild(a);
+        }
+        var m = document.createElement('div'); m.className = 'nb-meta';
+        m.textContent = e.v + (e.city && e.v.indexOf(e.city) === -1 ? ' · ' + e.city : '');
         art.appendChild(m);
         list.appendChild(art);
       });
@@ -702,6 +765,14 @@
       renderFilters($('nb-fk'), CATS, 'cat');
       renderList();
       resetRotation();
+      function setView(v){
+        state.view = v;
+        $('nb-tab-news').classList.toggle('on', v === 'news');
+        $('nb-tab-events').classList.toggle('on', v === 'events');
+        renderList();
+      }
+      $('nb-tab-news').addEventListener('click', function(){ setView('news'); });
+      $('nb-tab-events').addEventListener('click', function(){ setView('events'); });
       $('nb-toggle').addEventListener('click', function(){
         var panel = $('nb-panel'), open = panel.hidden;
         panel.hidden = !open;

@@ -1,0 +1,20 @@
+{
+  "note": "Curated upcoming GCC events. Dates verified July 2026. Edit freely: n=name, d1/d2=start/end (YYYY-MM-DD), v=venue, city, c=country, k=theme, u=official URL. Past events are hidden automatically on the site.",
+  "updated": "2026-07-16",
+  "events": [
+    {"n": "LEAP 2026", "d1": "2026-08-31", "d2": "2026-09-03", "v": "Riyadh Exhibition & Convention Center, Malham", "city": "Riyadh", "c": "KSA", "k": "Technology", "u": "https://onegiantleap.com"},
+    {"n": "COMEX — Global Technology Show 2026", "d1": "2026-09-06", "d2": "2026-09-09", "v": "Oman Convention & Exhibition Centre", "city": "Muscat", "c": "Oman", "k": "Technology", "u": "https://comex-global.com"},
+    {"n": "Seamless Middle East 2026", "d1": "2026-09-22", "d2": "2026-09-24", "v": "Dubai World Trade Centre", "city": "Dubai", "c": "UAE", "k": "Fintech & Payments", "u": "https://www.terrapinn.com/exhibition/seamless-middle-east/index.stm"},
+    {"n": "Fintech Forward 2026", "d1": "2026-10-07", "d2": "2026-10-08", "v": "Exhibition World Bahrain, Sakhir", "city": "Manama", "c": "Bahrain", "k": "Fintech", "u": "https://www.fintechforward.bh"},
+    {"n": "Future Investment Initiative — 10th Edition", "d1": "2026-10-26", "d2": "2026-10-29", "v": "King Abdulaziz International Conference Center", "city": "Riyadh", "c": "KSA", "k": "Investment", "u": "https://fii-institute.org"},
+    {"n": "ADIPEC 2026", "d1": "2026-11-02", "d2": "2026-11-05", "v": "ADNEC Centre Abu Dhabi", "city": "Abu Dhabi", "c": "UAE", "k": "Energy", "u": "https://www.adipec.com"},
+    {"n": "Cityscape Global 2026", "d1": "2026-11-16", "d2": "2026-11-19", "v": "Riyadh Exhibition & Convention Center, Malham", "city": "Riyadh", "c": "KSA", "k": "Real Estate", "u": "https://cityscapeglobal.com"},
+    {"n": "Big 5 Global 2026", "d1": "2026-11-23", "d2": "2026-11-26", "v": "Dubai World Trade Centre", "city": "Dubai", "c": "UAE", "k": "Construction", "u": "https://www.big5global.com"},
+    {"n": "Doha Forum 2026", "d1": "2026-12-05", "d2": "2026-12-06", "v": "Doha", "city": "Doha", "c": "Qatar", "k": "Policy", "u": "https://dohaforum.org"},
+    {"n": "GITEX Global 2026", "d1": "2026-12-07", "d2": "2026-12-11", "v": "Dubai Exhibition Centre, Expo City", "city": "Dubai", "c": "UAE", "k": "Technology & AI", "u": "https://www.gitex.com"},
+    {"n": "Web Summit Qatar 2027", "d1": "2027-01-31", "d2": "2027-02-03", "v": "Doha Exhibition and Convention Center", "city": "Doha", "c": "Qatar", "k": "Technology", "u": "https://qatar.websummit.com"},
+    {"n": "World Governments Summit 2027", "d1": "2027-02-01", "d2": "2027-02-03", "v": "Madinat Jumeirah", "city": "Dubai", "c": "UAE", "k": "Government", "u": "https://www.worldgovernmentssummit.org"},
+    {"n": "LEAP 2027", "d1": "2027-02-03", "d2": "2027-02-06", "v": "Riyadh Front Exhibition & Conference Center", "city": "Riyadh", "c": "KSA", "k": "Technology", "u": "https://onegiantleap.com"},
+    {"n": "Seamless Middle East 2027", "d1": "2027-05-24", "d2": "2027-05-26", "v": "Dubai World Trade Centre", "city": "Dubai", "c": "UAE", "k": "Fintech & Payments", "u": "https://www.terrapinn.com/exhibition/seamless-middle-east/index.stm"}
+  ]
+}
