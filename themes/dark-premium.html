@@ -207,6 +207,7 @@
   .nb-c-events{color:#D99E6E;border-color:rgba(217,158,110,.4);background:rgba(217,158,110,.08)}
   .nb-c-payments{color:#AFC178;border-color:rgba(175,193,120,.4);background:rgba(175,193,120,.08)}
   .nb-c-digital-id{color:#93AECB;border-color:rgba(147,174,203,.4);background:rgba(147,174,203,.08)}
+  .nb-c-investment{color:#C9A96E;border-color:rgba(201,169,110,.45);background:rgba(201,169,110,.09)}
   .nb-title{color:var(--cream);font-size:.92rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .nb-head:hover .nb-title{color:var(--gold-bright)}
   .nb-btn{background:none;border:1px solid var(--line);color:var(--gold);cursor:pointer;border-radius:2px;padding:6px 12px;white-space:nowrap;transition:.2s}
@@ -854,6 +855,10 @@
 
     function sec(title){ return el('h3', 'pl-sec', title); }
 
+    function catCls(k){
+      return 'nb-c-' + k.toLowerCase().replace(/[^a-z]+/g, '-');
+    }
+
     function init(d){
       if(!d.summary) return;
       $('pl-date').textContent = d.period || d.updated;
@@ -870,7 +875,7 @@
           var tags = el('div', 'pl-tags');
           tags.appendChild(el('span', 'pl-rank', '#' + s.r));
           tags.appendChild(el('span', 'nb-chip-c label', s.c));
-          tags.appendChild(el('span', 'nb-chip-c label', s.k));
+          tags.appendChild(el('span', 'nb-cat label ' + catCls(s.k), s.k));
           tags.appendChild(el('span', 'pl-impact', 'Impact ' + s.i + '/10'));
           c.appendChild(tags);
           c.appendChild(el('h4', null, s.t));
