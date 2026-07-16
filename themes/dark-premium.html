@@ -234,6 +234,44 @@
     .nb-bar{gap:10px}
   }
 
+  /* ---------- pulse briefing ---------- */
+  #pulsebar{background:var(--bg-alt);border-bottom:1px solid var(--line-soft)}
+  .pl-head{display:flex;align-items:center;gap:14px;padding:14px 0;cursor:pointer}
+  .pl-icon{width:34px;height:34px;border-radius:50%;background:rgba(199,166,103,.12);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--gold);flex:none}
+  .pl-title{font-family:"Fraunces",serif;font-weight:500;font-size:1.12rem;color:var(--cream);line-height:1.15}
+  .pl-sub{color:var(--muted);margin-top:3px}
+  .pl-head .nb-btn{margin-left:auto}
+  .pl-panel{padding:10px 0 44px}
+  .pl-sec{font-family:"Fraunces",serif;font-weight:500;font-size:1.35rem;color:var(--cream);margin:34px 0 16px;display:flex;align-items:center;gap:10px}
+  .pl-sec::after{content:"";flex:1;height:1px;background:var(--line-soft)}
+  .pl-summary{color:var(--text);line-height:1.7;max-width:960px}
+  .pl-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .pl-grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .pl-grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .pl-card{background:var(--panel);border:1px solid var(--line-soft);border-radius:4px;padding:20px 22px}
+  .pl-card h4{font-family:"Fraunces",serif;font-weight:500;font-size:1.15rem;color:var(--cream);margin:10px 0 8px;line-height:1.25}
+  .pl-card p{color:var(--muted);font-size:.92rem;line-height:1.6}
+  .pl-tags{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .pl-rank{color:var(--gold);border:1px solid var(--gold);border-radius:12px;padding:2px 9px;font-family:"Inter",sans-serif;font-weight:600;font-size:.68rem}
+  .pl-impact{margin-left:auto;color:var(--gold);font-family:"Inter",sans-serif;font-weight:600;font-size:.72rem;letter-spacing:.08em}
+  .pl-why{margin-top:12px;padding:10px 14px;border-left:2px solid var(--gold);background:rgba(199,166,103,.06);color:var(--text);font-size:.9rem;line-height:1.55}
+  .pl-why b{color:var(--gold);font-weight:600}
+  .pl-src{margin-top:10px;font-size:.8rem;color:var(--muted)}
+  .pl-src a{color:var(--gold)}
+  .pl-src a:hover{color:var(--gold-bright)}
+  .pl-role{color:var(--gold);font-family:"Inter",sans-serif;font-weight:600;font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;margin-bottom:12px}
+  .pl-card ul{list-style:none;display:grid;gap:10px}
+  .pl-card ul li{color:var(--muted);font-size:.9rem;line-height:1.55;padding-left:20px;position:relative}
+  .pl-card ul li::before{content:"✓";position:absolute;left:0;color:var(--gold)}
+  .pl-area{color:var(--gold);font-family:"Inter",sans-serif;font-weight:600;font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;margin-bottom:8px}
+  .pl-ceo{background:var(--panel);border:1px solid var(--line-soft);border-radius:4px;padding:26px 28px}
+  .pl-ceo .lead{font-style:italic;color:var(--muted);margin-bottom:16px}
+  .pl-ceo ol{list-style:none;display:grid;gap:12px;counter-reset:ceo}
+  .pl-ceo ol li{color:var(--text);line-height:1.6;padding-left:30px;position:relative;counter-increment:ceo}
+  .pl-ceo ol li::before{content:counter(ceo) ".";position:absolute;left:0;color:var(--gold);font-family:"Fraunces",serif;font-weight:500}
+  @media(max-width:860px){.pl-grid,.pl-grid3{grid-template-columns:1fr}.pl-grid4{grid-template-columns:1fr 1fr}}
+  @media(max-width:620px){.pl-grid4{grid-template-columns:1fr}.pl-sub{display:none}}
+
   /* ---------- reveal ---------- */
   .reveal{opacity:0;transform:translateY(22px);transition:opacity .8s ease,transform .8s ease}
   .reveal.in{opacity:1;transform:none}
@@ -299,6 +337,20 @@
       <div class="nb-filters" id="nb-fk"><span class="nb-flab label">Category</span></div>
       <div class="nb-list" id="nb-list"></div>
     </div>
+  </div>
+</div>
+
+<div id="pulsebar" hidden>
+  <div class="wrap">
+    <div class="pl-head" id="pl-head">
+      <span class="pl-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 12 6 12 9 4 15 20 18 12 22 12"/></svg></span>
+      <div>
+        <div class="pl-title">Putting your Finger on the Pulse</div>
+        <div class="pl-sub label">GCC Technology Intelligence Briefing · <span id="pl-date"></span></div>
+      </div>
+      <button class="nb-btn label" id="pl-toggle" aria-expanded="false">Expand</button>
+    </div>
+    <div class="pl-panel" id="pl-panel" hidden></div>
   </div>
 </div>
 
@@ -780,6 +832,126 @@
         this.setAttribute('aria-expanded', String(open));
       });
       $('newsbar').hidden = false;
+    }
+  })();
+</script>
+
+<script>
+  (function(){
+    var $ = function(id){ return document.getElementById(id); };
+
+    fetch('data/pulse.json', {cache:'no-cache'})
+      .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
+      .then(init)
+      .catch(function(){ /* no briefing — box stays hidden */ });
+
+    function el(tag, cls, text){
+      var e = document.createElement(tag);
+      if(cls) e.className = cls;
+      if(text) e.textContent = text;
+      return e;
+    }
+
+    function sec(title){ return el('h3', 'pl-sec', title); }
+
+    function init(d){
+      if(!d.summary) return;
+      $('pl-date').textContent = d.period || d.updated;
+      var p = $('pl-panel');
+
+      p.appendChild(sec('Executive Summary'));
+      p.appendChild(el('p', 'pl-summary', d.summary));
+
+      if(d.stories && d.stories.length){
+        p.appendChild(sec('Top ' + d.stories.length + ' Stories'));
+        var g = el('div', 'pl-grid');
+        d.stories.forEach(function(s){
+          var c = el('div', 'pl-card');
+          var tags = el('div', 'pl-tags');
+          tags.appendChild(el('span', 'pl-rank', '#' + s.r));
+          tags.appendChild(el('span', 'nb-chip-c label', s.c));
+          tags.appendChild(el('span', 'nb-chip-c label', s.k));
+          tags.appendChild(el('span', 'pl-impact', 'Impact ' + s.i + '/10'));
+          c.appendChild(tags);
+          c.appendChild(el('h4', null, s.t));
+          c.appendChild(el('p', null, s.b));
+          var w = el('div', 'pl-why');
+          w.appendChild(el('b', null, 'Why it matters: '));
+          w.appendChild(document.createTextNode(s.w));
+          c.appendChild(w);
+          var src = el('div', 'pl-src', 'Source: ');
+          if(/^https:\/\//.test(s.u)){
+            var a = el('a', null, s.s);
+            a.href = s.u; a.target = '_blank'; a.rel = 'noopener';
+            src.appendChild(a);
+          } else {
+            src.appendChild(document.createTextNode(s.s));
+          }
+          c.appendChild(src);
+          g.appendChild(c);
+        });
+        p.appendChild(g);
+      }
+
+      if(d.themes && d.themes.length){
+        p.appendChild(sec('Emerging Themes'));
+        var tg = el('div', 'pl-grid3');
+        d.themes.forEach(function(t){
+          var c = el('div', 'pl-card');
+          c.appendChild(el('h4', null, t.t));
+          c.appendChild(el('p', null, t.b));
+          tg.appendChild(c);
+        });
+        p.appendChild(tg);
+      }
+
+      if(d.actions && d.actions.length){
+        p.appendChild(sec('Executive Actions'));
+        var ag = el('div', 'pl-grid4');
+        d.actions.forEach(function(a){
+          var c = el('div', 'pl-card');
+          c.appendChild(el('div', 'pl-role', a.role));
+          var ul = el('ul');
+          a.items.forEach(function(it){ ul.appendChild(el('li', null, it)); });
+          c.appendChild(ul);
+          ag.appendChild(c);
+        });
+        p.appendChild(ag);
+      }
+
+      if(d.market && d.market.length){
+        p.appendChild(sec('Market Watch'));
+        var mg = el('div', 'pl-grid3');
+        d.market.forEach(function(m){
+          var c = el('div', 'pl-card');
+          c.appendChild(el('div', 'pl-area', m.a));
+          c.appendChild(el('p', null, m.b));
+          mg.appendChild(c);
+        });
+        p.appendChild(mg);
+      }
+
+      if(d.ceo && d.ceo.items){
+        p.appendChild(sec('CEO Perspective'));
+        var cc = el('div', 'pl-ceo');
+        cc.appendChild(el('div', 'lead', d.ceo.lead));
+        var ol = el('ol');
+        d.ceo.items.forEach(function(it){ ol.appendChild(el('li', null, it)); });
+        cc.appendChild(ol);
+        p.appendChild(cc);
+      }
+
+      function toggle(){
+        var open = $('pl-panel').hidden;
+        $('pl-panel').hidden = !open;
+        $('pl-toggle').textContent = open ? 'Collapse' : 'Expand';
+        $('pl-toggle').setAttribute('aria-expanded', String(open));
+      }
+      $('pl-head').addEventListener('click', function(e){
+        if(e.target.id !== 'pl-toggle') toggle();
+      });
+      $('pl-toggle').addEventListener('click', toggle);
+      $('pulsebar').hidden = false;
     }
   })();
 </script>
