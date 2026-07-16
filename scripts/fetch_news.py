@@ -2,13 +2,17 @@
 """Aggregate Gulf tech/finance/government news into data/news.json.
 
 Runs hourly via GitHub Actions. Sources are Google News RSS queries scoped
-to official news agencies and major English-language papers per country —
-most Gulf outlets no longer publish working direct RSS feeds, and Google
-News indexes them all with a single stable format.
+to official news agencies, government portals, regulators, exchanges, and
+major English-language papers per country — most Gulf outlets no longer
+publish working direct RSS feeds, and Google News indexes them all with a
+single stable format. Domains Google News does not index simply contribute
+nothing; listing them is harmless.
 
 Only items matching one of the topic categories below are kept (curated
 to strategy / digital / AI / financial-services domains). Items are tagged
 with country, category, and a "breaking" flag for very recent news.
+Regional (pan-GCC) sources get their country detected from the headline,
+falling back to a "GCC" tag that appears under the All filter only.
 
 Stdlib only — no pip installs needed in CI.
 """
@@ -27,16 +31,51 @@ from pathlib import Path
 
 OUT_PATH = Path(__file__).resolve().parent.parent / "data" / "news.json"
 
-# Per-country source scoping. Query is a Google News RSS search restricted
-# to these domains; edit the site: lists to add or remove sources.
+# Per-country source scoping. Queries are Google News RSS searches
+# restricted to these domains (chunked — Google caps query terms).
 COUNTRY_SOURCES = {
-    "UAE": ["wam.ae", "gulfnews.com", "khaleejtimes.com", "thenationalnews.com"],
-    "KSA": ["spa.gov.sa", "arabnews.com", "saudigazette.com.sa"],
-    "Qatar": ["qna.org.qa", "gulf-times.com", "thepeninsulaqatar.com"],
+    "UAE": [
+        # agencies & papers
+        "wam.ae", "gulfnews.com", "khaleejtimes.com", "thenationalnews.com",
+        "arabianbusiness.com",
+        # federal & emirate government / media offices
+        "u.ae", "uaecabinet.ae", "mofa.gov.ae", "mediaoffice.abudhabi",
+        "mediaoffice.ae", "sgmb.ae", "ajmanmedia.ae", "rakmediaoffice.ae",
+        "fujairah.ae", "digitaluaq.ae",
+        # financial regulators & centres
+        "centralbank.ae", "sca.gov.ae", "difc.com", "dfsa.ae", "adgm.com",
+        "vara.ae",
+        # tax, fiscal & economic policy
+        "mof.gov.ae", "tax.gov.ae", "moet.gov.ae", "moiat.gov.ae",
+        # investment & economic development
+        "mubadala.com", "adq.ae", "added.gov.ae", "dubaichambers.com",
+        # markets & exchanges
+        "dfm.ae", "adx.ae", "nasdaqdubai.com", "borsedubai.ae",
+    ],
+    "KSA": [
+        "spa.gov.sa", "arabnews.com", "saudigazette.com.sa", "argaam.com",
+        "my.gov.sa", "media.gov.sa", "mofa.gov.sa", "vision2030.gov.sa",
+    ],
+    "Qatar": ["qna.org.qa", "gulf-times.com", "thepeninsulaqatar.com", "dohanews.co"],
     "Oman": ["omannews.gov.om", "timesofoman.com", "omanobserver.om"],
-    "Bahrain": ["bna.bh", "gdnonline.com", "newsofbahrain.com"],
+    "Bahrain": ["bna.bh", "gdnonline.com", "newsofbahrain.com", "tradearabia.com"],
     "Kuwait": ["kuna.net.kw", "kuwaittimes.com", "arabtimesonline.com"],
 }
+
+# Pan-GCC business wires — country detected from the headline.
+REGIONAL_SOURCES = ["zawya.com", "meed.com", "gulfbusiness.com", "wamda.com", "magnitt.com"]
+
+# Ordered country detection for regional items; first match wins.
+COUNTRY_HINTS = [
+    ("UAE", re.compile(r"uae|dubai|abu dhabi|sharjah|emirat|ajman|ras al khaimah|fujairah|difc|adgm|adx\b|dfm\b", re.I)),
+    ("KSA", re.compile(r"saudi|ksa\b|riyadh|jeddah|neom|tadawul|vision 2030", re.I)),
+    ("Qatar", re.compile(r"qatar|doha", re.I)),
+    ("Oman", re.compile(r"oman\b|omani|muscat", re.I)),
+    ("Bahrain", re.compile(r"bahrain|manama", re.I)),
+    ("Kuwait", re.compile(r"kuwait", re.I)),
+]
+
+QUERY_CHUNK = 8  # site: terms per Google News query (32-term query limit)
 
 # Diplomatic / protocol / general-news noise: any title matching this is
 # dropped before categorization, whatever else it matches.
@@ -53,9 +92,9 @@ NOISE = re.compile(
 # Items about clearly non-Gulf geographies are dropped unless the title
 # also anchors to the region.
 NON_GULF = re.compile(
-    r"japan|canada|toronto|india\b|china|chinese|france|french|germany|europe|european"
-    r"|pakistan|egypt|jordan|lebanon|syria|iran|iraq|yemen|turkey|russia|ukraine"
-    r"|australia|brazil|africa|korea|singapore|malaysia|indonesia",
+    r"japan|canada|toronto|india\b|china|chinese|hong kong|france|french|germany|europe|european"
+    r"|pakistan|egypt|cairo|jordan|lebanon|syria|iran|iraq|yemen|turkey|russia|ukraine"
+    r"|australia|brazil|africa|burkina|nigeria|kenya|korea|singapore|malaysia|indonesia",
     re.IGNORECASE,
 )
 GULF_ANCHOR = re.compile(
@@ -69,12 +108,12 @@ GULF_ANCHOR = re.compile(
 CATEGORY_RULES = [
     ("Digital ID", r"digital identit|digital id\b|uae pass|e-?kyc|biometric"),
     ("Payments", r"payment|digital wallet|remittance|bnpl|buy now pay later|card scheme|instant transfer|contactless"),
-    ("Fintech", r"fintech|neobank|digital bank|open banking|crowdfund|venture capital|startup fund|seed round|series [ab]\b|blockchain|crypto"),
+    ("Fintech", r"fintech|neobank|digital bank|open banking|crowdfund|venture capital|startup fund|seed round|series [ab]\b|blockchain|crypto|virtual asset"),
     ("Cyber", r"cyber|ransomware|hacking|data breach|data protection|infosec|phishing"),
     ("AI", r"\bai\b|ai-|artificial intelligence|machine learning|genai|generative|llm|chatbot|robot|autonomous|quantum"),
     ("Cloud", r"cloud (comput|servic|infrastructur|region|provider)|data cent|datacenter|hyperscaler|\baws\b|azure|google cloud|oracle cloud"),
-    ("Banking", r"\bbank|cbuae|central bank|lender|cbdc|mortgage|sukuk|islamic finance|tadawul|bourse|stock (market|exchange)"),
-    ("Regulation", r"regulator|regulation|regulatory (framework|sandbox)|compliance|licensing|corporate tax|vat\b"),
+    ("Banking", r"\bbank|cbuae|central bank|lender|cbdc|mortgage|sukuk|islamic finance|tadawul|bourse|stock (market|exchange)|ipo\b|dividend"),
+    ("Regulation", r"regulator|regulation|regulatory (framework|sandbox)|compliance|licensing|corporate tax|vat\b|enforcement"),
     ("Events", r"summit|conference|forum\b|expo\b|gitex|leap\b|web summit|cop2\d"),
     ("Government", r"e-?government|digital government|govtech|smart cit|digital econom|digital transformation"
                    r"|digital service|government (platform|app|portal|service|entity|digital)"
@@ -95,6 +134,19 @@ SOURCE_NAMES = {
     "wam.ae": "WAM",
     "spa.gov.sa": "Saudi Press Agency",
     "qna.org.qa": "Qatar News Agency",
+    "u.ae": "UAE Government",
+    "uaecabinet.ae": "UAE Cabinet",
+    "centralbank.ae": "Central Bank of the UAE",
+    "mediaoffice.ae": "Dubai Media Office",
+    "mediaoffice.abudhabi": "Abu Dhabi Media Office",
+    "my.gov.sa": "Saudi National Portal",
+    "media.gov.sa": "Saudi Ministry of Media",
+    "مكتب أبوظبي الإعلامي": "Abu Dhabi Media Office",
+    "المكتب الإعلامي لحكومة عجمان": "Ajman Media Office",
+    "وزارة الاقتصاد والسياحة": "UAE Ministry of Economy & Tourism",
+    "وزارة الخارجية الإماراتية": "UAE Ministry of Foreign Affairs",
+    "Qatar news agency": "Qatar News Agency",
+    "ZAWYA": "Zawya",
 }
 
 # e.g. KUNA appends " - Politics - 13/07/2026" to headlines.
@@ -102,7 +154,7 @@ SECTION_DATE_SUFFIX = re.compile(r"\s+-\s+[A-Za-z &]+\s+-\s+\d{2}/\d{2}/\d{4}$")
 
 BREAKING_WINDOW_HOURS = 12
 MAX_PER_COUNTRY = 12
-MAX_TOTAL = 60
+MAX_TOTAL = 80
 FRESHNESS_DAYS = 7
 
 UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 josephkhater.com news bot"
@@ -120,7 +172,12 @@ def ssl_context():
     return ctx
 
 
-def fetch_feed(country, domains):
+def chunks(seq, size):
+    for i in range(0, len(seq), size):
+        yield seq[i:i + size]
+
+
+def fetch_feed(domains):
     sites = " OR ".join(f"site:{d}" for d in domains)
     query = urllib.parse.quote(f"({sites}) when:{FRESHNESS_DAYS}d")
     url = f"https://news.google.com/rss/search?q={query}&hl=en-US&gl=US&ceid=US:en"
@@ -148,15 +205,24 @@ def parse_items(xml_bytes, country):
         except (TypeError, ValueError):
             continue
         source = SOURCE_NAMES.get(source, source)
-        items.append({"title": title, "url": link, "source": source or country,
+        items.append({"title": title, "url": link, "source": source or country or "GCC",
                       "country": country, "published": published})
     return items
+
+
+def detect_country(title):
+    for name, pattern in COUNTRY_HINTS:
+        if pattern.search(title):
+            return name
+    return "GCC"
 
 
 def categorize(title):
     if NOISE.search(title):
         return None
     if NON_GULF.search(title) and not GULF_ANCHOR.search(title):
+        return None
+    if " | " in title:  # nav/page titles that leak in from indexed portals
         return None
     low = title.lower()
     for name, pattern in CATEGORY_RULES:
@@ -165,43 +231,52 @@ def categorize(title):
     return None
 
 
+def gather(group_name, domains, country):
+    """Fetch a source group (chunked) and return categorized items."""
+    items = []
+    for chunk in chunks(domains, QUERY_CHUNK):
+        try:
+            items.extend(parse_items(fetch_feed(chunk), country))
+        except Exception as exc:  # one dead chunk must not sink the run
+            print(f"WARN {group_name} ({chunk[0]}...): {exc}")
+    kept = []
+    for it in items:
+        cat = categorize(it["title"])
+        if not cat:
+            continue
+        it["category"] = cat
+        if it["country"] is None:
+            # Regional wires carry global PR content: require an explicit
+            # Gulf anchor, then pin to a country (or GCC-wide).
+            if not GULF_ANCHOR.search(it["title"]):
+                continue
+            it["country"] = detect_country(it["title"])
+        kept.append(it)
+    print(f"{group_name}: {len(items)} fetched, {len(kept)} kept")
+    return kept
+
+
 def main():
     now = datetime.now(timezone.utc)
     cutoff = now - timedelta(days=FRESHNESS_DAYS)
+
     all_items = []
     for country, domains in COUNTRY_SOURCES.items():
-        try:
-            raw = fetch_feed(country, domains)
-            items = parse_items(raw, country)
-        except Exception as exc:  # one dead feed must not sink the run
-            print(f"WARN {country}: {exc}")
-            continue
-        kept = []
-        seen_titles = set()
-        for it in sorted(items, key=lambda x: x["published"], reverse=True):
-            if it["published"] < cutoff:
-                continue
-            cat = categorize(it["title"])
-            if not cat:
-                continue
-            key = it["title"].lower()[:80]
-            if key in seen_titles:
-                continue
-            seen_titles.add(key)
-            it["category"] = cat
-            kept.append(it)
-            if len(kept) >= MAX_PER_COUNTRY:
-                break
-        print(f"{country}: {len(items)} fetched, {len(kept)} kept")
-        all_items.extend(kept)
+        all_items.extend(gather(country, domains, country))
+    all_items.extend(gather("Regional", REGIONAL_SOURCES, None))
 
+    all_items = [it for it in all_items if it["published"] >= cutoff]
     all_items.sort(key=lambda x: x["published"], reverse=True)
-    deduped, seen = [], set()
+
+    deduped, seen, per_country = [], set(), {}
     for it in all_items:
         key = it["title"].lower()[:80]
         if key in seen:
             continue
+        if per_country.get(it["country"], 0) >= MAX_PER_COUNTRY:
+            continue
         seen.add(key)
+        per_country[it["country"]] = per_country.get(it["country"], 0) + 1
         deduped.append(it)
     all_items = deduped[:MAX_TOTAL]
 
@@ -224,7 +299,7 @@ def main():
 
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     OUT_PATH.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf-8")
-    print(f"Wrote {len(payload['items'])} items to {OUT_PATH}")
+    print(f"Wrote {len(payload['items'])} items to {OUT_PATH} — by country: {per_country}")
 
 
 if __name__ == "__main__":
