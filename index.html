@@ -186,6 +186,40 @@
   footer .wrap{display:flex;flex-direction:column;gap:6px}
   footer .label{color:var(--muted)}
 
+  /* ---------- news ticker ---------- */
+  #newsbar{background:var(--bg-alt);border-bottom:1px solid var(--line-soft)}
+  .nb-bar{display:flex;align-items:center;gap:14px;height:42px}
+  .nb-live{color:var(--gold);display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+  .nb-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px rgba(199,166,103,.8);animation:nbpulse 2s infinite}
+  @keyframes nbpulse{50%{opacity:.35}}
+  .nb-upd{color:var(--muted);white-space:nowrap}
+  .nb-head{flex:1;min-width:0;display:inline-flex;align-items:center;gap:10px;transition:opacity .3s}
+  .nb-head.fade{opacity:0}
+  .nb-brk{background:rgba(201,106,94,.14);color:#D98B80;border:1px solid rgba(201,106,94,.4);border-radius:2px;padding:3px 8px;white-space:nowrap}
+  .nb-cat{color:var(--gold);border:1px solid var(--line);border-radius:2px;padding:3px 8px;white-space:nowrap}
+  .nb-title{color:var(--cream);font-size:.92rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .nb-head:hover .nb-title{color:var(--gold-bright)}
+  .nb-btn{background:none;border:1px solid var(--line);color:var(--gold);cursor:pointer;border-radius:2px;padding:6px 12px;white-space:nowrap;transition:.2s}
+  .nb-btn:hover{border-color:var(--gold)}
+  .nb-panel{border-top:1px solid var(--line-soft);padding:22px 0 26px;max-height:68vh;overflow-y:auto}
+  .nb-filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+  .nb-flab{color:var(--muted);margin-right:4px}
+  .nb-fbtn{background:none;border:1px solid var(--line);color:var(--text);cursor:pointer;border-radius:20px;padding:5px 13px;font-family:"Inter",sans-serif;font-size:.72rem;letter-spacing:.06em;transition:.2s}
+  .nb-fbtn:hover{border-color:var(--gold);color:var(--cream)}
+  .nb-fbtn.on{background:var(--gold);color:#0C0B0E;border-color:var(--gold);font-weight:600}
+  .nb-list{margin-top:16px}
+  .nb-item{padding:15px 0;border-top:1px solid var(--line-soft)}
+  .nb-item-tags{display:flex;gap:8px;margin-bottom:7px;align-items:center;flex-wrap:wrap}
+  .nb-item-tags .nb-chip-c{color:var(--muted);border:1px solid var(--line-soft);border-radius:2px;padding:3px 8px}
+  .nb-item a{font-family:"Fraunces",serif;font-size:1.08rem;color:var(--cream);line-height:1.3;display:inline-block}
+  .nb-item a:hover{color:var(--gold)}
+  .nb-meta{color:var(--muted);font-size:.8rem;margin-top:6px}
+  .nb-empty{color:var(--muted);padding:18px 0;font-size:.92rem}
+  @media(max-width:620px){
+    .nb-upd,.nb-bar .nb-cat{display:none}
+    .nb-bar{gap:10px}
+  }
+
   /* ---------- reveal ---------- */
   .reveal{opacity:0;transform:translateY(22px);transition:opacity .8s ease,transform .8s ease}
   .reveal.in{opacity:1;transform:none}
@@ -229,6 +263,26 @@
 </style>
 </head>
 <body>
+
+<div id="newsbar" hidden>
+  <div class="wrap nb-bar">
+    <span class="nb-live label"><span class="nb-dot" aria-hidden="true"></span>Live · Gulf</span>
+    <span class="nb-upd label" id="nb-upd"></span>
+    <a class="nb-head" id="nb-link" target="_blank" rel="noopener" aria-live="polite">
+      <span class="nb-brk label" id="nb-brk" hidden>Breaking</span>
+      <span class="nb-cat label" id="nb-cat"></span>
+      <span class="nb-title" id="nb-title"></span>
+    </a>
+    <button class="nb-btn label" id="nb-toggle" aria-expanded="false">View all</button>
+  </div>
+  <div class="nb-panel" id="nb-panel" hidden>
+    <div class="wrap">
+      <div class="nb-filters" id="nb-fc"><span class="nb-flab label">Country</span></div>
+      <div class="nb-filters" id="nb-fk"><span class="nb-flab label">Category</span></div>
+      <div class="nb-list" id="nb-list"></div>
+    </div>
+  </div>
+</div>
 
 <header>
   <div class="wrap nav">
@@ -515,6 +569,131 @@
       });
     },{threshold:.12,rootMargin:'0px 0px -8% 0px'});
     els.forEach(function(e){io.observe(e);});
+  })();
+</script>
+
+<script>
+  (function(){
+    var COUNTRIES = ['All','UAE','KSA','Qatar','Oman','Bahrain','Kuwait'];
+    var CATS = ['All','Banking','AI','Cyber','Regulation','Government','Cloud','Fintech','Events','Payments','Digital ID'];
+    var state = { country:'UAE', cat:'All', items:[], rot:[], idx:0, timer:null };
+    var $ = function(id){ return document.getElementById(id); };
+
+    fetch('data/news.json', {cache:'no-cache'})
+      .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
+      .then(init)
+      .catch(function(){ /* no data — bar stays hidden */ });
+
+    function ago(iso){
+      var s = (Date.now() - new Date(iso).getTime()) / 1000;
+      if(s < 3600) return Math.max(1, Math.round(s/60)) + 'm ago';
+      if(s < 86400) return Math.round(s/3600) + 'h ago';
+      return Math.round(s/86400) + 'd ago';
+    }
+
+    function filtered(){
+      return state.items.filter(function(it){
+        return (state.country === 'All' || it.c === state.country) &&
+               (state.cat === 'All' || it.k === state.cat);
+      });
+    }
+
+    function chip(txt, cls){
+      var s = document.createElement('span');
+      s.className = cls; s.textContent = txt;
+      return s;
+    }
+
+    function renderFilters(el, values, key){
+      values.forEach(function(v){
+        var b = document.createElement('button');
+        b.className = 'nb-fbtn' + (state[key] === v ? ' on' : '');
+        b.type = 'button'; b.textContent = v;
+        b.addEventListener('click', function(){
+          state[key] = v;
+          el.querySelectorAll('.nb-fbtn').forEach(function(x){ x.classList.remove('on'); });
+          b.classList.add('on');
+          renderList(); resetRotation();
+        });
+        el.appendChild(b);
+      });
+    }
+
+    function renderList(){
+      var list = $('nb-list'), items = filtered();
+      list.textContent = '';
+      if(!items.length){
+        var d = document.createElement('div');
+        d.className = 'nb-empty';
+        d.textContent = 'No recent items for this filter.';
+        list.appendChild(d);
+        return;
+      }
+      items.forEach(function(it){
+        var art = document.createElement('article'); art.className = 'nb-item';
+        var tags = document.createElement('div'); tags.className = 'nb-item-tags';
+        if(it.b) tags.appendChild(chip('Breaking', 'nb-brk label'));
+        tags.appendChild(chip(it.k, 'nb-cat label'));
+        tags.appendChild(chip(it.c, 'nb-chip-c label'));
+        art.appendChild(tags);
+        if(/^https:\/\//.test(it.u)){
+          var a = document.createElement('a');
+          a.href = it.u; a.target = '_blank'; a.rel = 'noopener';
+          a.textContent = it.t;
+          art.appendChild(a);
+        }
+        var m = document.createElement('div'); m.className = 'nb-meta';
+        m.textContent = it.s + ' · ' + ago(it.p);
+        art.appendChild(m);
+        list.appendChild(art);
+      });
+    }
+
+    function showItem(it){
+      var link = $('nb-link');
+      if(/^https:\/\//.test(it.u)) link.href = it.u;
+      $('nb-brk').hidden = !it.b;
+      $('nb-cat').textContent = it.k;
+      $('nb-title').textContent = it.t;
+    }
+
+    function rotate(){
+      if(state.rot.length < 2) return;
+      var link = $('nb-link');
+      link.classList.add('fade');
+      setTimeout(function(){
+        state.idx = (state.idx + 1) % state.rot.length;
+        showItem(state.rot[state.idx]);
+        link.classList.remove('fade');
+      }, 300);
+    }
+
+    function resetRotation(){
+      var items = filtered();
+      state.rot = items.length ? items : state.items;
+      state.idx = 0;
+      showItem(state.rot[0]);
+      if(state.timer) clearInterval(state.timer);
+      state.timer = setInterval(rotate, 6000);
+    }
+
+    function init(data){
+      if(!data.items || !data.items.length) return;
+      state.items = data.items;
+      var upd = new Date(data.updated);
+      $('nb-upd').textContent = 'Updated ' + upd.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+      renderFilters($('nb-fc'), COUNTRIES, 'country');
+      renderFilters($('nb-fk'), CATS, 'cat');
+      renderList();
+      resetRotation();
+      $('nb-toggle').addEventListener('click', function(){
+        var panel = $('nb-panel'), open = panel.hidden;
+        panel.hidden = !open;
+        this.textContent = open ? 'Hide' : 'View all';
+        this.setAttribute('aria-expanded', String(open));
+      });
+      $('newsbar').hidden = false;
+    }
   })();
 </script>
 
