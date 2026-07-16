@@ -189,14 +189,24 @@
   /* ---------- news ticker ---------- */
   #newsbar{background:var(--bg-alt);border-bottom:1px solid var(--line-soft)}
   .nb-bar{display:flex;align-items:center;gap:14px;height:42px}
-  .nb-live{color:var(--gold);display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
-  .nb-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px rgba(199,166,103,.8);animation:nbpulse 2s infinite}
+  .nb-live{color:#E0776A;display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+  .nb-dot{width:6px;height:6px;border-radius:50%;background:#E0776A;box-shadow:0 0 8px rgba(224,119,106,.8);animation:nbpulse 2s infinite}
   @keyframes nbpulse{50%{opacity:.35}}
   .nb-upd{color:var(--muted);white-space:nowrap}
   .nb-head{flex:1;min-width:0;display:inline-flex;align-items:center;gap:10px;transition:opacity .3s}
   .nb-head.fade{opacity:0}
   .nb-brk{background:rgba(201,106,94,.14);color:#D98B80;border:1px solid rgba(201,106,94,.4);border-radius:2px;padding:3px 8px;white-space:nowrap}
   .nb-cat{color:var(--gold);border:1px solid var(--line);border-radius:2px;padding:3px 8px;white-space:nowrap}
+  .nb-c-banking{color:#7EA6DE;border-color:rgba(126,166,222,.4);background:rgba(126,166,222,.08)}
+  .nb-c-ai{color:#A99BE0;border-color:rgba(169,155,224,.4);background:rgba(169,155,224,.08)}
+  .nb-c-cyber{color:#D97F7F;border-color:rgba(217,127,127,.4);background:rgba(217,127,127,.08)}
+  .nb-c-regulation{color:#D9B96A;border-color:rgba(217,185,106,.4);background:rgba(217,185,106,.08)}
+  .nb-c-government{color:#84BD90;border-color:rgba(132,189,144,.4);background:rgba(132,189,144,.08)}
+  .nb-c-cloud{color:#74BFCC;border-color:rgba(116,191,204,.4);background:rgba(116,191,204,.08)}
+  .nb-c-fintech{color:#CE8FC0;border-color:rgba(206,143,192,.4);background:rgba(206,143,192,.08)}
+  .nb-c-events{color:#D99E6E;border-color:rgba(217,158,110,.4);background:rgba(217,158,110,.08)}
+  .nb-c-payments{color:#AFC178;border-color:rgba(175,193,120,.4);background:rgba(175,193,120,.08)}
+  .nb-c-digital-id{color:#93AECB;border-color:rgba(147,174,203,.4);background:rgba(147,174,203,.08)}
   .nb-title{color:var(--cream);font-size:.92rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .nb-head:hover .nb-title{color:var(--gold-bright)}
   .nb-btn{background:none;border:1px solid var(--line);color:var(--gold);cursor:pointer;border-radius:2px;padding:6px 12px;white-space:nowrap;transition:.2s}
@@ -266,7 +276,7 @@
 
 <div id="newsbar" hidden>
   <div class="wrap nb-bar">
-    <span class="nb-live label"><span class="nb-dot" aria-hidden="true"></span>Live · Gulf</span>
+    <span class="nb-live label"><span class="nb-dot" aria-hidden="true"></span>Live</span>
     <span class="nb-upd label" id="nb-upd"></span>
     <a class="nb-head" id="nb-link" target="_blank" rel="noopener" aria-live="polite">
       <span class="nb-brk label" id="nb-brk" hidden>Breaking</span>
@@ -604,6 +614,10 @@
       return s;
     }
 
+    function catCls(k){
+      return 'nb-c-' + k.toLowerCase().replace(/[^a-z]+/g, '-');
+    }
+
     function renderFilters(el, values, key){
       values.forEach(function(v){
         var b = document.createElement('button');
@@ -633,7 +647,7 @@
         var art = document.createElement('article'); art.className = 'nb-item';
         var tags = document.createElement('div'); tags.className = 'nb-item-tags';
         if(it.b) tags.appendChild(chip('Breaking', 'nb-brk label'));
-        tags.appendChild(chip(it.k, 'nb-cat label'));
+        tags.appendChild(chip(it.k, 'nb-cat label ' + catCls(it.k)));
         tags.appendChild(chip(it.c, 'nb-chip-c label'));
         art.appendChild(tags);
         if(/^https:\/\//.test(it.u)){
@@ -653,7 +667,9 @@
       var link = $('nb-link');
       if(/^https:\/\//.test(it.u)) link.href = it.u;
       $('nb-brk').hidden = !it.b;
-      $('nb-cat').textContent = it.k;
+      var cat = $('nb-cat');
+      cat.textContent = it.k;
+      cat.className = 'nb-cat label ' + catCls(it.k);
       $('nb-title').textContent = it.t;
     }
 
