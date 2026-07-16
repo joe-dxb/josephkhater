@@ -106,7 +106,7 @@ GULF_ANCHOR = re.compile(
 # Category rules, checked in order — first match wins. Keyword matching is
 # case-insensitive on title text; word boundaries where it matters.
 CATEGORY_RULES = [
-    ("Digital ID", r"digital identit|digital id\b|identity verification|national id\b|uae pass|ekey|e-?kyc|biometric"),
+    ("Digital ID", r"digital identit|digital id\b|identity verification|verif\w* the identity|national id\b|uae pass|ekey|\bkyc\b|e-?kyc|biometric"),
     ("Payments", r"payment|digital wallet|remittance|bnpl|buy now pay later|card scheme|instant transfer|contactless"),
     ("Fintech", r"fintech|financial innovation|regtech|insurtech|neobank|digital bank|open banking|open finance|crowdfund|venture capital|startup fund|seed round|series [ab]\b|blockchain|crypto|virtual asset|digital asset|tokeni[sz]"),
     ("Cyber", r"cyber|ransomware|hacking|data breach|data protection|infosec|phishing"),
