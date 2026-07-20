@@ -350,7 +350,7 @@
       <span class="pl-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 12 6 12 9 4 15 20 18 12 22 12"/></svg></span>
       <div>
         <div class="pl-title">Putting your Finger on the Pulse</div>
-        <div class="pl-sub label">GCC Technology Intelligence Briefing · <span id="pl-date"></span></div>
+        <div class="pl-sub label">GCC Technology Intelligence Briefing</div>
       </div>
       <button class="nb-btn label" id="pl-toggle" aria-expanded="false">Expand</button>
     </div>
@@ -871,7 +871,6 @@
 
     function init(d){
       if(!d.summary) return;
-      $('pl-date').textContent = d.period || d.updated;
       var p = $('pl-panel');
 
       p.appendChild(sec('Executive Summary'));
