@@ -1,0 +1,44 @@
+name: Refresh briefing
+
+on:
+  schedule:
+    - cron: "30 6 * * 1"   # weekly, Mondays 06:30 UTC (after the hourly news refresh)
+  workflow_dispatch:        # optional manual run from the Actions tab
+
+permissions:
+  contents: write   # to commit the updated briefing
+  models: read      # unlocks free GitHub Models inference for the built-in GITHUB_TOKEN
+
+concurrency:
+  group: pulse-refresh
+  cancel-in-progress: true
+
+jobs:
+  briefing:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Generate weekly briefing
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}   # provided automatically; no setup needed
+          # Optional overrides:
+          # PULSE_MODEL: openai/gpt-4o
+          # PULSE_STORY_COUNT: "10"
+        run: python3 scripts/build_pulse.py
+
+      - name: Commit if changed
+        run: |
+          git config user.name "news-bot"
+          git config user.email "actions@github.com"
+          git add data/pulse.json
+          if git diff --cached --quiet; then
+            echo "No changes."
+          else
+            git commit -m "Refresh weekly briefing"
+            git push
+          fi
