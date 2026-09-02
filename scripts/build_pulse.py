@@ -150,7 +150,7 @@ def call_model(user_prompt: str) -> str:
         "model": MODEL,
         "max_tokens": MAX_TOKENS,
         "temperature": 0.4,
-        "reasoning_effort": "low",  # Gemini 3 Flash defaults thinking to high; cap it so JSON is emitted
+        "reasoning_effort": "minimal",  # Gemini 3 Flash thinks by default; minimise it so the call is fast and returns JSON
         "messages": [
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": user_prompt},
@@ -169,9 +169,9 @@ def call_model(user_prompt: str) -> str:
     )
 
     last_err = None
-    for _ in range(3):
+    for _ in range(2):
         try:
-            with urllib.request.urlopen(req, timeout=120) as resp:
+            with urllib.request.urlopen(req, timeout=300) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
             text = (data.get("choices", [{}])[0].get("message", {}) or {}).get("content", "").strip()
             if not text:
