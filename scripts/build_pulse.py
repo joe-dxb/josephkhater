@@ -22,7 +22,7 @@ Design notes:
 Environment:
 - GEMINI_API_KEY      (required)  — free key from https://aistudio.google.com/apikey,
                                     stored as a GitHub Actions secret.
-- PULSE_MODEL         (optional)  — model id, default "gemini-2.5-flash".
+- PULSE_MODEL         (optional)  — model id, default "gemini-3.6-flash".
 - PULSE_ENDPOINT      (optional)  — override the OpenAI-compatible endpoint.
 - PULSE_STORY_COUNT   (optional)  — target number of top stories, default 10.
 """
@@ -150,6 +150,7 @@ def call_model(user_prompt: str) -> str:
         "model": MODEL,
         "max_tokens": MAX_TOKENS,
         "temperature": 0.4,
+        "reasoning_effort": "low",  # Gemini 3 Flash defaults thinking to high; cap it so JSON is emitted
         "messages": [
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": user_prompt},
@@ -195,7 +196,7 @@ def extract_json(text: str) -> dict:
             t = t.lstrip()[4:]
     start, end = t.find("{"), t.rfind("}")
     if start == -1 or end == -1:
-        sys.exit("ERROR: no JSON object found in model response.")
+        sys.exit(f"ERROR: no JSON object found in model response. First 300 chars: {t[:300]!r}")
     try:
         return json.loads(t[start:end + 1])
     except json.JSONDecodeError as e:
