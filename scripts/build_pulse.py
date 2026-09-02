@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Generate the weekly executive briefing (data/pulse.json) from data/news.json.
 
-Uses GitHub Models for inference, which is free and authenticates with the built-in
-GITHUB_TOKEN inside GitHub Actions — no separate API key or secret required. The
-workflow just needs `permissions: models: read`.
+Uses Google's Gemini API (free tier via AI Studio) through its OpenAI-compatible
+endpoint. GitHub Models was retired on 30 July 2026, so a provider key is now
+required; the Gemini free tier needs no credit card and its limits comfortably
+cover a once-a-week job.
 
 Reads the aggregated raw news feed produced by fetch_news.py, asks a model to
 synthesise an executive briefing, validates the result against the schema that
@@ -19,9 +20,10 @@ Design notes:
   so the workflow surfaces the problem instead of committing a broken briefing.
 
 Environment:
-- GITHUB_TOKEN        (required)  — provided automatically by GitHub Actions.
-- PULSE_MODEL         (optional)  — GitHub Models id, default "openai/gpt-4o".
-- PULSE_ENDPOINT      (optional)  — override for org-specific endpoints.
+- GEMINI_API_KEY      (required)  — free key from https://aistudio.google.com/apikey,
+                                    stored as a GitHub Actions secret.
+- PULSE_MODEL         (optional)  — model id, default "gemini-2.5-flash".
+- PULSE_ENDPOINT      (optional)  — override the OpenAI-compatible endpoint.
 - PULSE_STORY_COUNT   (optional)  — target number of top stories, default 10.
 """
 
@@ -37,8 +39,11 @@ ROOT = Path(__file__).resolve().parent.parent
 NEWS_PATH = ROOT / "data" / "news.json"
 OUT_PATH = ROOT / "data" / "pulse.json"
 
-API_URL = os.environ.get("PULSE_ENDPOINT", "https://models.github.ai/inference/chat/completions")
-MODEL = os.environ.get("PULSE_MODEL", "openai/gpt-4o")
+API_URL = os.environ.get(
+    "PULSE_ENDPOINT",
+    "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+)
+MODEL = os.environ.get("PULSE_MODEL", "gemini-2.5-flash")
 STORY_COUNT = int(os.environ.get("PULSE_STORY_COUNT", "10"))
 MAX_TOKENS = 8000
 
@@ -137,9 +142,9 @@ Rules:
 
 
 def call_model(user_prompt: str) -> str:
-    token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
-    if not token:
-        sys.exit("ERROR: GITHUB_TOKEN is not set (add `permissions: models: read` to the workflow).")
+    api_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
+    if not api_key:
+        sys.exit("ERROR: GEMINI_API_KEY is not set (add it as a GitHub Actions secret).")
 
     body = json.dumps({
         "model": MODEL,
@@ -156,7 +161,7 @@ def call_model(user_prompt: str) -> str:
         data=body,
         headers={
             "content-type": "application/json",
-            "authorization": f"Bearer {token}",
+            "authorization": f"Bearer {api_key}",
             "accept": "application/json",
         },
         method="POST",
