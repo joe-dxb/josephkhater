@@ -43,7 +43,7 @@ API_URL = os.environ.get(
     "PULSE_ENDPOINT",
     "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
 )
-MODEL = os.environ.get("PULSE_MODEL", "gemini-2.5-flash")
+MODEL = os.environ.get("PULSE_MODEL", "gemini-3.6-flash")
 STORY_COUNT = int(os.environ.get("PULSE_STORY_COUNT", "10"))
 MAX_TOKENS = 8000
 
