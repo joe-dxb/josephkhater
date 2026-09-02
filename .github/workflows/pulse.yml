@@ -1,13 +1,14 @@
 name: Refresh briefing
 
 on:
-  schedule:
-    - cron: "30 6 * * 1"   # weekly, Mondays 06:30 UTC (after the hourly news refresh)
-  workflow_dispatch:        # optional manual run from the Actions tab
+  # Weekly schedule is PAUSED while the Gemini key is set up.
+  # Un-comment the two lines below to resume weekly runs once a manual run is green.
+  # schedule:
+  #   - cron: "30 6 * * 1"   # weekly, Mondays 06:30 UTC (after the hourly news refresh)
+  workflow_dispatch:          # manual run from the Actions tab (used to test setup)
 
 permissions:
   contents: write   # to commit the updated briefing
-  models: read      # unlocks free GitHub Models inference for the built-in GITHUB_TOKEN
 
 concurrency:
   group: pulse-refresh
@@ -17,17 +18,17 @@ jobs:
   briefing:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
 
       - name: Generate weekly briefing
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}   # provided automatically; no setup needed
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           # Optional overrides:
-          # PULSE_MODEL: openai/gpt-4o
+          # PULSE_MODEL: gemini-2.5-flash
           # PULSE_STORY_COUNT: "10"
         run: python3 scripts/build_pulse.py
 
