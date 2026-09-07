@@ -249,6 +249,16 @@ def main():
 
     raw = call_model(build_user_prompt(news))
     pulse = extract_json(raw)
+
+    # Lighter models occasionally rewrite a source URL instead of copying it.
+    # Strip any story URL that isn't from the feed so we never publish a fake
+    # link (the story still renders with its source name), and the run doesn't
+    # fail over a single bad link.
+    for _s in pulse.get("stories", []) if isinstance(pulse.get("stories"), list) else []:
+        _u = _s.get("u")
+        if isinstance(_u, str) and _u.startswith("http") and _u not in allowed_urls:
+            _s["u"] = ""
+
     validate(pulse, allowed_urls)
 
     for s in pulse["stories"]:
