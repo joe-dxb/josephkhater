@@ -1,11 +1,9 @@
 name: Refresh briefing
 
 on:
-  # Weekly schedule is PAUSED while the Gemini key is set up.
-  # Un-comment the two lines below to resume weekly runs once a manual run is green.
-  # schedule:
-  #   - cron: "30 6 * * 1"   # weekly, Mondays 06:30 UTC (after the hourly news refresh)
-  workflow_dispatch:          # manual run from the Actions tab (used to test setup)
+  schedule:
+    - cron: "30 6 * * 1"   # weekly, Mondays 06:30 UTC / 10:30 AM UAE (after the hourly news refresh)
+  workflow_dispatch:          # manual run from the Actions tab
 
 permissions:
   contents: write   # to commit the updated briefing
