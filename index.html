@@ -874,6 +874,17 @@
       if(!d.summary) return;
       var p = $('pl-panel');
 
+      // Freshness label: show the Monday of the briefing's week, self-updating.
+      if (d.updated) {
+        var _pu = d.updated.split('-');
+        var _pd = new Date(+_pu[0], +_pu[1] - 1, +_pu[2]);
+        var _dow = _pd.getDay();
+        _pd.setDate(_pd.getDate() + (_dow === 0 ? -6 : 1 - _dow));
+        var _lbl = _pd.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+        var _sub = document.querySelector('#pl-head .pl-sub');
+        if (_sub) _sub.textContent = 'GCC Technology Intelligence Briefing \u00b7 Week of ' + _lbl;
+      }
+
       p.appendChild(sec('Executive Summary'));
       p.appendChild(el('p', 'pl-summary', d.summary));
 
