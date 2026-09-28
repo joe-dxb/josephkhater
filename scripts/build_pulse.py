@@ -22,7 +22,8 @@ Design notes:
 Environment:
 - GEMINI_API_KEY      (required)  — free key from https://aistudio.google.com/apikey,
                                     stored as a GitHub Actions secret.
-- PULSE_MODEL         (optional)  — model id, default "gemini-3.6-flash".
+- PULSE_MODEL         (optional)  — model id(s), comma-separated fallback list;
+                                    default "gemini-3.5-flash-lite,gemini-3.6-flash".
 - PULSE_ENDPOINT      (optional)  — override the OpenAI-compatible endpoint.
 - PULSE_STORY_COUNT   (optional)  — target number of top stories, default 10.
 """
@@ -30,6 +31,7 @@ Environment:
 import json
 import os
 import sys
+import time
 import urllib.request
 import urllib.error
 from datetime import datetime, timezone, timedelta
@@ -43,7 +45,7 @@ API_URL = os.environ.get(
     "PULSE_ENDPOINT",
     "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
 )
-MODEL = os.environ.get("PULSE_MODEL", "gemini-3.5-flash-lite")
+MODELS = [m.strip() for m in os.environ.get("PULSE_MODEL", "gemini-3.5-flash-lite,gemini-3.6-flash").split(",") if m.strip()]
 STORY_COUNT = int(os.environ.get("PULSE_STORY_COUNT", "10"))
 MAX_TOKENS = 8000
 
@@ -146,44 +148,46 @@ def call_model(user_prompt: str) -> str:
     if not api_key:
         sys.exit("ERROR: GEMINI_API_KEY is not set (add it as a GitHub Actions secret).")
 
-    body = json.dumps({
-        "model": MODEL,
+    req_body = {
         "max_tokens": MAX_TOKENS,
         "temperature": 0.4,
-        "reasoning_effort": "minimal",  # Gemini 3 Flash thinks by default; minimise it so the call is fast and returns JSON
+        "reasoning_effort": "minimal",  # keep the call fast and JSON-only across models
         "messages": [
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": user_prompt},
         ],
-    }).encode("utf-8")
+    }
+    headers = {
+        "content-type": "application/json",
+        "authorization": f"Bearer {api_key}",
+        "accept": "application/json",
+    }
 
-    req = urllib.request.Request(
-        API_URL,
-        data=body,
-        headers={
-            "content-type": "application/json",
-            "authorization": f"Bearer {api_key}",
-            "accept": "application/json",
-        },
-        method="POST",
-    )
-
+    # Try each model in turn; within a model, retry transient errors (429/5xx) with
+    # exponential backoff. Google's free flash-lite is often briefly overloaded
+    # (HTTP 503 "high demand"), so we ride out spikes and fall back to the next model.
+    transient = {408, 425, 429, 500, 502, 503, 504}
     last_err = None
-    for _ in range(2):
-        try:
-            with urllib.request.urlopen(req, timeout=300) as resp:
-                data = json.loads(resp.read().decode("utf-8"))
-            text = (data.get("choices", [{}])[0].get("message", {}) or {}).get("content", "").strip()
-            if not text:
-                raise ValueError("empty model response")
-            return text
-        except urllib.error.HTTPError as e:
-            detail = e.read().decode("utf-8", "replace")[:500]
-            last_err = f"HTTP {e.code}: {detail}"
-            if 400 <= e.code < 500 and e.code != 429:
-                break
-        except Exception as e:  # noqa: BLE001 - network/parse errors -> retry
-            last_err = str(e)
+    for model in MODELS:
+        for attempt in range(4):
+            body = json.dumps({**req_body, "model": model}).encode("utf-8")
+            req = urllib.request.Request(API_URL, data=body, headers=headers, method="POST")
+            try:
+                with urllib.request.urlopen(req, timeout=300) as resp:
+                    data = json.loads(resp.read().decode("utf-8"))
+                text = (data.get("choices", [{}])[0].get("message", {}) or {}).get("content", "").strip()
+                if not text:
+                    raise ValueError("empty model response")
+                return text
+            except urllib.error.HTTPError as e:
+                detail = e.read().decode("utf-8", "replace")[:300]
+                last_err = f"{model} HTTP {e.code}: {detail}"
+                if e.code not in transient:
+                    break  # permanent error (e.g. 404 unknown model) -> next model
+            except Exception as e:  # noqa: BLE001 - network/parse errors are transient
+                last_err = f"{model}: {e}"
+            if attempt < 3:
+                time.sleep(min(5 * (2 ** attempt), 40))  # 5s, 10s, 20s
     sys.exit(f"ERROR: model call failed after retries: {last_err}")
 
 
